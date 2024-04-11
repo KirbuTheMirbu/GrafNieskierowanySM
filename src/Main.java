@@ -11,23 +11,24 @@ public static void main(String[] args) {
     punktyZWartosciami.put(4, 50);
 
     Graph graph = new Graph(5, punktyZWartosciami);
-    graph.dodajKrawedz(0,1);
-    graph.dodajKrawedz(0,3);
-    graph.dodajKrawedz(1,2);
-    graph.dodajKrawedz(3,4);
-    graph.dodajKrawedz(2,4);
+    graph.dodajKrawedz(0,1, 1);
+    graph.dodajKrawedz(0,3, 2);
+    graph.dodajKrawedz(1,2, 3);
+    graph.dodajKrawedz(3,4, 4);
+    graph.dodajKrawedz(2,4, 5);
 
-    graph.wyswietlGraf();
+    Map<Integer, Integer> odleglosci = graph.dijkstra(0);
+    graph.wyswietlGraf(odleglosci);
     System.out.println();
 
     graph.usunKrawedz(0, 1);
     System.out.println("Po usunięciu krawędzi (0,1):");
-    graph.wyswietlGraf();
+    graph.wyswietlGraf(odleglosci);
     System.out.println();
 
     graph.usunPunktIKrawedzie(0);
     System.out.println("Po usunięciu wierzchołka 0 i powiązanych krawędzi:");
-    graph.wyswietlGraf();
+    graph.wyswietlGraf(odleglosci);
     System.out.println();
 
     Map<Integer, Integer> wartosciWierzcholkow = graph.pobierzWartosciWierzcholkow();
