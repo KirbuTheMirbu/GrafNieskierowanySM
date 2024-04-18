@@ -35,6 +35,11 @@ public static void main(String[] args) {
     for (Map.Entry<Integer, Integer> entry : wartosciWierzcholkow.entrySet()) {
         System.out.println("Wierzchołek " + entry.getKey() + " ma wartość: " + entry.getValue());
     }
+
+    System.out.println();
+    System.out.println("Minimalne drzewo rozpinające (MST):");
+    List<int[]> mst = graph.minimalneDrzewoRozpinajace();
+    for (int[] krawedz : mst) {
+        System.out.println("Krawędź: " + krawedz[0] + " - " + krawedz[1] + ", Waga: " + krawedz[2]);
+    }
 }
-
-
