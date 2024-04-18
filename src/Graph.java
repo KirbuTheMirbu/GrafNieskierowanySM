@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.function.Function;
 
 public class Graph {
     private Map<Integer, List<Integer>> dostList;
@@ -104,4 +105,48 @@ public class Graph {
 
         return odleglosci;
     }
+    public List<int[]> minimalneDrzewoRozpinajace() {
+        List<int[]> mst = new ArrayList<>();
+        PriorityQueue<int[]> krawedzie = new PriorityQueue<>((e1, e2) -> e1[2] - e2[2]);
+
+        // Dodaj wszystkie krawędzie do kolejki priorytetowej
+        for (int wierzcholek : dostList.keySet()) {
+            for (int sasiad : dostList.get(wierzcholek)) {
+                int waga = wagiKrawedzi.get(wierzcholek).get(sasiad);
+                krawedzie.offer(new int[]{wierzcholek, sasiad, waga});
+            }
+        }
+
+        // Inicjalizuj tablicę parent
+        int[] parent = new int[dostList.size()];
+        for (int i = 0; i < dostList.size(); i++) {
+            parent[i] = i;
+        }
+
+        // Funkcja znajdująca korzeń drzewa
+        // Służy do sprawdzania cykli
+        Function<Integer, Integer> find = vertex -> {
+            while (vertex != parent[vertex]) {
+                parent[vertex] = parent[parent[vertex]]; // Path compression
+                vertex = parent[vertex];
+            }
+            return vertex;
+        };
+
+        // Rozpocznij algorytm Kruskala
+        while (!krawedzie.isEmpty()) {
+            int[] krawedz = krawedzie.poll();
+            int korzenPoczatku = find.apply(krawedz[0]);
+            int korzenKonca = find.apply(krawedz[1]);
+
+            // Jeśli dodanie krawędzi nie spowoduje utworzenia cyklu, dodaj ją do MST
+            if (korzenPoczatku != korzenKonca) {
+                mst.add(krawedz);
+                parent[korzenPoczatku] = korzenKonca; // Union
+            }
+        }
+
+        return mst;
+    }
+
 }
