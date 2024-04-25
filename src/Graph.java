@@ -82,6 +82,17 @@ public class Graph {
         return wartosciWierzcholkow;
     }
 
+    public void pobierzWartosciWszystkichWierzcholkow() {
+        System.out.println("Wartości wierzchołków:");
+        for (int wierzcholek : dostList.keySet()) {
+            if (!wartosciWierzcholkow.containsKey(wierzcholek)) {
+                wartosciWierzcholkow.put(wierzcholek, -1); // Lub dowolną wartość, która oznacza brak wartości
+            }
+        }
+        System.out.println(wartosciWierzcholkow);
+    }
+
+
     public Map<Integer, Integer> dijkstra(int start) {
         Map<Integer, Integer> odleglosci = new HashMap<>();
         for (int wierzcholek : dostList.keySet()) {
@@ -105,11 +116,11 @@ public class Graph {
 
         return odleglosci;
     }
+
     public List<int[]> minimalneDrzewoRozpinajace() {
         List<int[]> mst = new ArrayList<>();
         PriorityQueue<int[]> krawedzie = new PriorityQueue<>((e1, e2) -> e1[2] - e2[2]);
 
-        // Dodaj wszystkie krawędzie do kolejki priorytetowej
         for (int wierzcholek : dostList.keySet()) {
             for (int sasiad : dostList.get(wierzcholek)) {
                 int waga = wagiKrawedzi.get(wierzcholek).get(sasiad);
@@ -117,14 +128,11 @@ public class Graph {
             }
         }
 
-        // Inicjalizuj tablicę parent
         int[] parent = new int[dostList.size()];
         for (int i = 0; i < dostList.size(); i++) {
             parent[i] = i;
         }
 
-        // Funkcja znajdująca korzeń drzewa
-        // Służy do sprawdzania cykli
         Function<Integer, Integer> find = vertex -> {
             while (vertex != parent[vertex]) {
                 parent[vertex] = parent[parent[vertex]]; // Path compression
@@ -133,13 +141,11 @@ public class Graph {
             return vertex;
         };
 
-        // Rozpocznij algorytm Kruskala
         while (!krawedzie.isEmpty()) {
             int[] krawedz = krawedzie.poll();
             int korzenPoczatku = find.apply(krawedz[0]);
             int korzenKonca = find.apply(krawedz[1]);
 
-            // Jeśli dodanie krawędzi nie spowoduje utworzenia cyklu, dodaj ją do MST
             if (korzenPoczatku != korzenKonca) {
                 mst.add(krawedz);
                 parent[korzenPoczatku] = korzenKonca; // Union
@@ -147,6 +153,55 @@ public class Graph {
         }
 
         return mst;
+    }
+
+    public List<int[]> minimalneDrzewoRozpinajacePrima() {
+        List<int[]> mst = new ArrayList<>();
+        Set<Integer> odwiedzone = new HashSet<>();
+        PriorityQueue<int[]> krawedzie = new PriorityQueue<>(Comparator.comparingInt(a -> a[2]));
+
+        int startowy = dostList.keySet().iterator().next();
+        odwiedzone.add(startowy);
+        for (int sasiad : dostList.get(startowy)) {
+            krawedzie.add(new int[] {startowy, sasiad, wagiKrawedzi.get(startowy).get(sasiad)});
+        }
+
+        while (!krawedzie.isEmpty()) {
+            int[] krawedz = krawedzie.poll();
+            int v1 = krawedz[0], v2 = krawedz[1], waga = krawedz[2];
+            if (!odwiedzone.contains(v2)) {
+                mst.add(krawedz);
+                odwiedzone.add(v2);
+                for (int sasiad : dostList.get(v2)) {
+                    if (!odwiedzone.contains(sasiad)) {
+                        krawedzie.add(new int[] {v2, sasiad, wagiKrawedzi.get(v2).get(sasiad)});
+                    }
+                }
+            }
+        }
+
+        return mst;
+    }
+
+    public int minimalnaLiczbaChromatyczna() {
+        Map<Integer, Integer> kolorowanie = new HashMap<>();
+        Set<Integer> dostepneKolory = new HashSet<>();
+
+        for (int wierzcholek : dostList.keySet()) {
+            dostepneKolory.clear();
+            for (int kolor = 1; kolor <= dostList.size(); kolor++) {
+                dostepneKolory.add(kolor);
+            }
+            for (int sasiad : dostList.get(wierzcholek)) {
+                if (kolorowanie.containsKey(sasiad)) {
+                    dostepneKolory.remove(kolorowanie.get(sasiad));
+                }
+            }
+            int kolor = dostepneKolory.iterator().next();
+            kolorowanie.put(wierzcholek, kolor);
+        }
+
+        return Collections.max(kolorowanie.values());
     }
 
 }
